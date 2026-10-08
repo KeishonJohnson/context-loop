@@ -81,3 +81,37 @@ Checks and Codex commands run with no shell interpolation.
   not exact byte caps; review/archive local logs when necessary.
 - No GitHub upload, Obsidian automation API, Claude adapter, trade execution,
   migration of existing projects, or distributed multi-agent coordination.
+
+
+## Existing projects in v0.3
+
+Version 2 contracts with `mode: existing` operate in the current repository root,
+with explicit relative `write_paths`. Visible owner/check/output files live in
+`Context Loop/`; private runtime remains in `.context-loop/`. Attachment never
+rewrites original files or Git settings. The full source map, requirement quotes,
+selected wiki-linked notes and independent check definitions are hashed in an
+owner-approved snapshot, which remains binding across restarts.
+
+Before edits, a fresh read-only Codex review checks the frozen source corpus and
+task bindings for contradictory direction. Each execution turn receives core
+sources in role order plus selected task notes, and must cite the exact sources'
+hashes and requirement IDs. Conflict/provenance blocks persist until a new owner
+approval. Source changes or new unlisted applicable instructions stop the run.
+Final tests do not erase an alignment failure. `check` remains model-free and
+reports mechanical checks separately from contextual completion.
+
+The context budget is explicit; governing text is never silently truncated.
+Obsidian retrieval follows configured index wiki links and selected notes' immediate
+links. It does not load every note, parse ordinary Markdown links automatically,
+or write source notes. The source-order convention does not silently resolve
+contradictions; those are reported for an owner decision. Semantic conflict review
+is an additional model judgment, not a formal proof of policy compliance.
+
+Named filesystem profiles grant code-path writes with more specific read-only
+rules for protected sources, instructions, controls and Git metadata. Actual macOS
+probes verified direct writes, deletes, atomic replacements and symlink escapes.
+Read isolation and hostile-code limitations from v0.2 remain. Source files referenced
+only indirectly by ordinary Markdown links or prose are not automatically frozen;
+map each authoritative document explicitly. Dependencies outside the configured
+checks and sources are also not pinned. No global configuration or project fleet
+migration is installed.

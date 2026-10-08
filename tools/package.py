@@ -7,6 +7,8 @@ import zipapp
 import zipfile
 
 ROOT = Path(__file__).resolve().parents[1]
+import runpy
+VERSION = runpy.run_path(str(ROOT / 'src/context_loop/__init__.py'))['__version__']
 DIST = ROOT / 'dist'
 DIST.mkdir(exist_ok=True)
 with tempfile.TemporaryDirectory() as directory:
@@ -17,11 +19,11 @@ allow = ['README.md', 'LICENSE', 'VALIDATION.md', 'pyproject.toml', '.gitignore'
 paths = [ROOT / name for name in allow]
 for folder in ('src', 'tests', 'tools', 'docs'):
     paths += [p for p in (ROOT / folder).rglob('*') if p.is_file() and p.suffix in ('.py', '.md') and '__pycache__' not in p.parts]
-archive = DIST / 'context-loop-0.2.0.zip'
+archive = DIST / f'context-loop-{VERSION}.zip'
 with zipfile.ZipFile(archive, 'w', zipfile.ZIP_DEFLATED) as output:
     for path in sorted(paths):
-        output.write(path, 'context-loop-0.2.0/' + path.relative_to(ROOT).as_posix())
-    output.write(DIST / 'context-loop.pyz', 'context-loop-0.2.0/context-loop.pyz')
+        output.write(path, f'context-loop-{VERSION}/' + path.relative_to(ROOT).as_posix())
+    output.write(DIST / 'context-loop.pyz', f'context-loop-{VERSION}/context-loop.pyz')
 checksums = '\n'.join(hashlib.sha256(p.read_bytes()).hexdigest() + '  ' + p.name for p in (DIST / 'context-loop.pyz', archive)) + '\n'
 (DIST / 'SHA256SUMS').write_text(checksums)
 print(checksums, end='')

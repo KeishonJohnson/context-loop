@@ -4,7 +4,7 @@ A Codex-first local execution partner that works through a goal in bounded loops
 Each cycle gets a fresh Codex session. Markdown preserves your goal and decisions;
 independent acceptance checks decide when the work is complete.
 
-**v0.2 supports macOS and Linux with Python 3.11+ and Codex CLI.** The real integration
+**v0.3 supports macOS and Linux with Python 3.11+ and Codex CLI.** The real integration
 was tested on macOS with Codex CLI 0.157.0. Claude and Windows are not implemented.
 
 ## Start with the standalone package
@@ -34,6 +34,26 @@ python3 context-loop.pyz stop ~/Documents/context-loop-demo
 Ctrl-C also stops the active run. The runner terminates only the child process group
 it started. Restart with the same `run` command: existing code is retained and
 checks run again before any new agent session.
+
+## Use an existing project
+
+Code can stay in its current repository. Read [the existing-project guide](docs/EXISTING_PROJECTS.md)
+and use [the reusable Codex setup instruction](docs/PROJECT_SETUP_PROMPT.md).
+
+```sh
+python3 context-loop.pyz inspect /absolute/path/to/project
+```
+
+Then attach with explicit source paths and allowed code paths, bind tasks to exact
+approved requirements, and review before `approve` and `run`. Original build docs,
+guidance, status and selected Obsidian notes govern the work. Hash pinning catches
+source drift across restarts, a read-only alignment review flags conflicts before
+edits, and independent checks verify results. Progress goes into a visible
+`Context Loop/` folder; source notes and existing project instructions are preserved.
+
+The integration is opt-in for each project. No global instructions or other
+repositories are changed automatically. Conflict review is model-assisted, so
+strong acceptance checks and owner review remain necessary.
 
 ## Use it for your own goal
 
@@ -79,12 +99,13 @@ are not automatically rewritten by the agent; it records discoveries in
 
 ## Limits and status
 
-Defaults in `context-loop.json`: 10 agent iterations, 30 minutes total per run,
+Defaults in `context-loop.json` (attached runs also include one read-only alignment review): 10 agent iterations, 30 minutes total per run,
 5 minutes per agent turn, 30 seconds per check, 3 consecutive unsuccessful turns,
 4 MB log-size stop threshold, and 200,000 reported input + output tokens per run.
 No automatic retry loop runs outside those limits. `complete` means all configured
 checks passed against the final workspace. Other results include `blocked`,
-`needs_approval`, `limit_reached`, `stopped`, `checks_failed`, and `error`.
+`needs_approval`, `limit_reached`, `stopped`, `checks_failed`, and `error`. Attached mechanical-only checks can return `checks_passed`; stale
+approval is reported as `context_unready`.
 
 Limits reset only when you explicitly start another run; the history, total
 iterations, and reported token totals persist. Tokens are reported after a turn,
@@ -111,6 +132,7 @@ Developer commands:
 ```sh
 PYTHONPATH=src python3 -m unittest discover -s tests -v
 python3 tools/verify_sandbox.py
+python3 tools/verify_existing_sandbox.py
 python3 tools/package.py
 ```
 
