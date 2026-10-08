@@ -9,7 +9,7 @@ was tested on macOS with Codex CLI 0.157.0. Claude and Windows are not implement
 
 ## Start with the standalone package
 
-Download/extract the distribution ZIP. Use the included `goalkeeper.pyz`; no Python
+Download/extract the [latest release ZIP](https://github.com/KeishonJohnson/goalkeeper/releases/latest). Use the included `goalkeeper.pyz`; no Python
 package dependencies are needed. Install/sign in to Codex separately using the
 [official setup instructions](https://developers.openai.com/codex/quickstart).
 An existing Codex ChatGPT login works; Goalkeeper does not copy credentials or
@@ -117,7 +117,9 @@ python3 tools/package.py
 `dist/` contains the zipapp, a source-and-zipapp distribution ZIP, and SHA256 sums.
 Share the ZIP or publish the clean source repository to GitHub. Recipients use
 their own Codex login; private project folders, run logs, and credentials are not
-included. No GitHub or PyPI publishing has been performed.
+included. The public source repository is [KeishonJohnson/goalkeeper](https://github.com/KeishonJohnson/goalkeeper).
+Release downloads include the ZIP, standalone zipapp, and SHA256 checksums.
+No PyPI upload has been performed.
 
 MIT licensed. Design influences and official CLI documentation are attributed in
 [SOURCES.md](docs/SOURCES.md).

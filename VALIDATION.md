@@ -35,7 +35,10 @@ ChatGPT login. No production project was modified or adopted into this harness.
   runtime/credential files, packaged-source equality, and extracted CLI commands
   passed. The archive contains source, documentation, tests, license, and zipapp.
 - Local repository initialized on `main`; implementation and release evidence
-  committed. No remote configured or published. Distribution files remain in dist/.
+  committed. The local MVP was completed before remote publication. Following
+  the owner's separate publishing instruction, the reviewed source is now public
+  at https://github.com/KeishonJohnson/goalkeeper with versioned release downloads.
+  Distribution files also remain in dist/.
 - All test/demonstration processes finished; final demo state has no runner or
   active child PID. The source-suite process inspection required execution outside
   the outer tool sandbox; the production check profiles stayed sandboxed.
@@ -48,6 +51,5 @@ here to avoid an archive self-reference.
 
 See `docs/ARCHITECTURE.md` for write containment versus read privacy, trusted-check
 limitations, external file races, SIGKILL/PID recovery, token reporting, sampled
-log thresholds, and platform scope. Linux has not been validated. No remote
-publishing, continuous background daemon, deployment, or existing-project changes
-are part of this release.
+log thresholds, and platform scope. Linux has not been validated. No continuous
+background daemon, deployment, or existing-project changes are part of this release.
