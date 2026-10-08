@@ -5,11 +5,11 @@ ChatGPT login. No production project was modified or adopted into this harness.
 
 ## Verified
 
-- Automated unit/integration suite: 29 tests cover actual behavioral acceptance,
+- Automated unit/integration suite: 30 tests cover actual behavioral acceptance,
   model false-completion claims, final regression detection, restart revalidation,
   stale state, live-child refusal, malformed JSON, blocked/approval responses,
   contract tampering, iteration/token limits, runtime/check timeouts, stop requests,
-  SIGTERM handling, process termination/escalation, logs, lock contention,
+  SIGTERM handling, process termination/escalation, background descendant cleanup, logs, lock contention,
   missing checks, existing-folder refusal, path/symlink rules, and sandbox argv.
 - `tools/verify_sandbox.py`: four real installed-sandbox checks passed, demonstrating
   workspace writes, denied contract/sibling writes, read-only check execution, and
@@ -26,8 +26,23 @@ ChatGPT login. No production project was modified or adopted into this harness.
 
 ## Release checks
 
-Packaging, installed command smoke tests, and final clean-repository verification
-are being completed. See the final release record below when complete.
+- Installed source CLI `doctor` and `--help`: passed.
+- Standalone zipapp help, init, status, stop, and check commands: passed. An empty
+  fresh demo correctly returned `checks_failed` without running an agent.
+- Standalone zipapp `run` against the real completed demo: independently reran
+  the final sandboxed checks, returned `complete`, and used no further agent turns.
+- `tools/verify_release.py`: checksums, safe archive paths, exclusion of private
+  runtime/credential files, packaged-source equality, and extracted CLI commands
+  passed. The archive contains source, documentation, tests, license, and zipapp.
+- Local repository initialized on `main`; implementation and release evidence
+  committed. No remote configured or published. Distribution files remain in dist/.
+- All test/demonstration processes finished; final demo state has no runner or
+  active child PID. The source-suite process inspection required execution outside
+  the outer tool sandbox; the production check profiles stayed sandboxed.
+
+Completion contract: **COMPLETE** on 7 October 2026 Pacific time. SHA256 sums are
+in `dist/SHA256SUMS`; hashes are generated after packaging rather than embedded
+here to avoid an archive self-reference.
 
 ## Practical limits
 

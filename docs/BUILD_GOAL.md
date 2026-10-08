@@ -31,5 +31,9 @@ trading, browser actions, deployment, or external integrations. Supporting Claud
 and Windows is deferred. The user has authorized autonomous work until this
 contract is satisfied. Record any residual limitation honestly in VALIDATION.md.
 
-Status: IN PROGRESS
+Status: COMPLETE
 
+Evidence: see ../VALIDATION.md. The real Codex demo, 30 automated tests, four
+installed-sandbox boundary checks, source installation, extracted distribution
+commands, and packaged final acceptance checks passed. Local Git and distribution
+artifacts are ready. No existing project was modified and no remote was published.
