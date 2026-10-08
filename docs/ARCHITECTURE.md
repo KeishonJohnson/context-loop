@@ -15,19 +15,19 @@ Generated task/progress Markdown is a view of runner state. An agent saying
 “done” never sets a task to passed. A `blocked` or `needs_approval` report stops
 rather than silently assuming access or approval. No autonomous background service
 is installed. Keep the terminal running, or manage the process using your own
-supervisor; Goalkeeper itself does not prevent laptop sleep.
+supervisor; Context Loop itself does not prevent laptop sleep.
 
 ## Directory layout
 
 ```text
 managed-project/
   Goal.md, Constraints.md, Decisions.md     owner context
-  goalkeeper.json, checks/                 owner acceptance contract
+  context-loop.json, checks/                 owner acceptance contract
   Index.md, Tasks.md, Progress.md           readable Obsidian views
   workspace/                               agent-writable source and NOTES.md
-  .goalkeeper/state.json                   atomic private runtime state
-  .goalkeeper/run.lock                     process lock (file can persist)
-  .goalkeeper/runs/<uuid>/                  local prompts' outputs and check logs
+  .context-loop/state.json                   atomic private runtime state
+  .context-loop/run.lock                     process lock (file can persist)
+  .context-loop/runs/<uuid>/                  local prompts' outputs and check logs
 ```
 
 Runtime files stay on the owner's machine and are excluded by the starter's
@@ -74,7 +74,7 @@ Checks and Codex commands run with no shell interpolation.
 - Owner goal, constraints, decisions and files under `checks/` are frozen per run;
   dependencies stored elsewhere are not hashed. Put acceptance scripts in checks/.
 - `.codex` workspace configuration stops execution. Arbitrary custom integrations,
-  per-project agent plugins, and network package installs are outside v0.1 scope.
+  per-project agent plugins, and network package installs are outside v0.2 scope.
 - No dollar cap, guaranteed context efficiency, or guaranteed convergence.
   Reported token threshold is a between-turn guard; interrupted usage may be absent.
 - Total storage across runs is not capped. Individual log thresholds are sampled,

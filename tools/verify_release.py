@@ -12,17 +12,17 @@ DIST = ROOT / 'dist'
 for line in (DIST / 'SHA256SUMS').read_text().splitlines():
     expected, name = line.split('  ', 1)
     assert hashlib.sha256((DIST / name).read_bytes()).hexdigest() == expected, name
-with zipfile.ZipFile(DIST / 'goalkeeper-0.1.0.zip') as archive:
+with zipfile.ZipFile(DIST / 'context-loop-0.2.0.zip') as archive:
     for name in archive.namelist():
         path = Path(name)
         assert not path.is_absolute() and '..' not in path.parts
-        assert not set(path.parts) & {'.private', '.git', '.goalkeeper', '__pycache__'}
+        assert not set(path.parts) & {'.private', '.git', '.context-loop', '__pycache__'}
         assert path.name not in {'auth.json', 'token.json', '.env'}
     with tempfile.TemporaryDirectory(dir=Path(tempfile.gettempdir()).resolve()) as directory:
         destination = Path(directory)
         archive.extractall(destination)
-        release = destination / 'goalkeeper-0.1.0'
-        app = release / 'goalkeeper.pyz'
+        release = destination / 'context-loop-0.2.0'
+        app = release / 'context-loop.pyz'
         with zipfile.ZipFile(app) as packaged:
             for name in packaged.namelist():
                 if name.endswith('.py') and name != '__main__.py':
@@ -36,6 +36,6 @@ with zipfile.ZipFile(DIST / 'goalkeeper-0.1.0.zip') as archive:
         run('init', str(project), '--demo')
         assert json.loads(run('status', str(project)))['status'] == 'ready'
         run('stop', str(project))
-        assert (project / '.goalkeeper/stop').exists()
+        assert (project / '.context-loop/stop').exists()
         assert (release / 'README.md').is_file()
 print('PASS: checksums, sanitized archive paths, exact packaged source, extracted CLI help/init/status/stop')

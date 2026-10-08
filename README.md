@@ -1,25 +1,25 @@
-# Goalkeeper
+# Context Loop
 
 A Codex-first local execution partner that works through a goal in bounded loops.
 Each cycle gets a fresh Codex session. Markdown preserves your goal and decisions;
 independent acceptance checks decide when the work is complete.
 
-**v0.1 supports macOS and Linux with Python 3.11+ and Codex CLI.** The real integration
+**v0.2 supports macOS and Linux with Python 3.11+ and Codex CLI.** The real integration
 was tested on macOS with Codex CLI 0.157.0. Claude and Windows are not implemented.
 
 ## Start with the standalone package
 
-Download/extract the [latest release ZIP](https://github.com/KeishonJohnson/goalkeeper/releases/latest). Use the included `goalkeeper.pyz`; no Python
+Download/extract the [latest release ZIP](https://github.com/KeishonJohnson/context-loop/releases/latest). Use the included `context-loop.pyz`; no Python
 package dependencies are needed. Install/sign in to Codex separately using the
 [official setup instructions](https://developers.openai.com/codex/quickstart).
-An existing Codex ChatGPT login works; Goalkeeper does not copy credentials or
+An existing Codex ChatGPT login works; Context Loop does not copy credentials or
 require you to supply an API key. Codex access and usage depend on your account.
 
 ```sh
-python3 goalkeeper.pyz doctor
-python3 goalkeeper.pyz init ~/Documents/goalkeeper-demo --demo
-python3 goalkeeper.pyz run ~/Documents/goalkeeper-demo
-python3 goalkeeper.pyz status ~/Documents/goalkeeper-demo
+python3 context-loop.pyz doctor
+python3 context-loop.pyz init ~/Documents/context-loop-demo --demo
+python3 context-loop.pyz run ~/Documents/context-loop-demo
+python3 context-loop.pyz status ~/Documents/context-loop-demo
 ```
 
 The demo builds a small slugify function and CLI. Two separate acceptance scripts
@@ -28,7 +28,7 @@ check actual behavior. `run` returns zero only when all final checks pass.
 To request a stop from another terminal:
 
 ```sh
-python3 goalkeeper.pyz stop ~/Documents/goalkeeper-demo
+python3 context-loop.pyz stop ~/Documents/context-loop-demo
 ```
 
 Ctrl-C also stops the active run. The runner terminates only the child process group
@@ -38,11 +38,11 @@ checks run again before any new agent session.
 ## Use it for your own goal
 
 ```sh
-python3 goalkeeper.pyz init ~/Documents/my-new-project
+python3 context-loop.pyz init ~/Documents/my-new-project
 ```
 
 Edit `Goal.md`, `Constraints.md`, and `Decisions.md`. Replace the placeholder task
-in `goalkeeper.json` with a small concrete increment and one or more executable
+in `context-loop.json` with a small concrete increment and one or more executable
 acceptance checks. A starter project deliberately cannot run with empty checks.
 
 ```json
@@ -72,14 +72,14 @@ Use a fresh folder; manually copy selected source into its workspace if needed.
 
 Open the managed project folder as an Obsidian vault, or create it inside your
 existing vault. `Index.md` links to Goal, Constraints, Decisions, Tasks, and Progress.
-These are the same local files Goalkeeper reads and updates. Obsidian is optional;
+These are the same local files Context Loop reads and updates. Obsidian is optional;
 there is no Obsidian API, subscription, or background sync service. Owner notes
 are not automatically rewritten by the agent; it records discoveries in
 `workspace/NOTES.md`, which you can review and promote into Decisions yourself.
 
 ## Limits and status
 
-Defaults in `goalkeeper.json`: 10 agent iterations, 30 minutes total per run,
+Defaults in `context-loop.json`: 10 agent iterations, 30 minutes total per run,
 5 minutes per agent turn, 30 seconds per check, 3 consecutive unsuccessful turns,
 4 MB log-size stop threshold, and 200,000 reported input + output tokens per run.
 No automatic retry loop runs outside those limits. `complete` means all configured
@@ -94,16 +94,16 @@ can add a few seconds of grace; the log threshold is sampled and can overshoot.
 
 Read [architecture and limitations](docs/ARCHITECTURE.md) and
 [validation evidence](VALIDATION.md) before adopting this for important work.
-Goalkeeper does not guarantee an agent will solve a goal or discover a weak test.
+Context Loop does not guarantee an agent will solve a goal or discover a weak test.
 It does not run indefinitely, trade, deploy, publish, or send external messages.
 
 ## Install from source and distribute
 
 ```sh
 python3 -m pip install .
-goalkeeper doctor
-goalkeeper init ~/Documents/goalkeeper-demo --demo
-goalkeeper run ~/Documents/goalkeeper-demo
+context-loop doctor
+context-loop init ~/Documents/context-loop-demo --demo
+context-loop run ~/Documents/context-loop-demo
 ```
 
 Developer commands:
@@ -117,9 +117,22 @@ python3 tools/package.py
 `dist/` contains the zipapp, a source-and-zipapp distribution ZIP, and SHA256 sums.
 Share the ZIP or publish the clean source repository to GitHub. Recipients use
 their own Codex login; private project folders, run logs, and credentials are not
-included. The public source repository is [KeishonJohnson/goalkeeper](https://github.com/KeishonJohnson/goalkeeper).
+included. The public source repository is [KeishonJohnson/context-loop](https://github.com/KeishonJohnson/context-loop).
 Release downloads include the ZIP, standalone zipapp, and SHA256 checksums.
 No PyPI upload has been performed.
 
 MIT licensed. Design influences and official CLI documentation are attributed in
 [SOURCES.md](docs/SOURCES.md).
+
+## Name change in v0.2.0
+
+The product is **Context Loop**, the repository and command are `context-loop`,
+and the Python import is `context_loop`. New projects use `context-loop.json`
+and `.context-loop/` for their contract and runtime state.
+
+For projects created with the original v0.1.0 release, stop the old runner first,
+back up the project, and rename `goalkeeper.json` to `context-loop.json` and
+`.goalkeeper/` to `.context-loop/`. Update the old names in the project's
+`.gitignore`, index, and workspace instructions, then run the new executable.
+Workspace code and prior run history can stay in place; checks are revalidated
+on restart. The previous release remains available as historical version 0.1.0.

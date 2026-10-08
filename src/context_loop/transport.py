@@ -5,7 +5,7 @@ import signal
 import subprocess
 import time
 from pathlib import Path
-from .storage import GoalkeeperError
+from .storage import ContextLoopError
 
 SCHEMA = {"type": "object", "properties": {"status": {"type": "string", "enum": ["done", "continue", "blocked", "needs_approval"]}, "summary": {"type": "string"}}, "required": ["status", "summary"], "additionalProperties": False}
 
@@ -15,10 +15,10 @@ def profile(root, name, writable=False):
     return ["-c", value]
 
 def check_command(codex, root, command):
-    return [codex, "sandbox", "-P", "goalkeeper-check", "-C", str(root / "workspace"), *profile(root, "goalkeeper-check"), "--", *command]
+    return [codex, "sandbox", "-P", "context-loop-check", "-C", str(root / "workspace"), *profile(root, "context-loop-check"), "--", *command]
 
 def agent_command(codex, root, schema, output):
-    return [codex, "-a", "never", "exec", "--ignore-user-config", "--ignore-rules", "--ephemeral", "--skip-git-repo-check", "--json", "-C", str(root / "workspace"), *profile(root, "goalkeeper", True), "-c", 'default_permissions="goalkeeper"', "--output-schema", str(schema), "-o", str(output), "-"]
+    return [codex, "-a", "never", "exec", "--ignore-user-config", "--ignore-rules", "--ephemeral", "--skip-git-repo-check", "--json", "-C", str(root / "workspace"), *profile(root, "context-loop", True), "-c", 'default_permissions="context-loop"', "--output-schema", str(schema), "-o", str(output), "-"]
 
 def terminate(process):
     if process.poll() is not None:
@@ -70,13 +70,13 @@ def execute(command, cwd, log, timeout, max_bytes, should_stop, on_child, prompt
 
 def report(output, log):
     if not output.is_file() or output.stat().st_size > 100_000:
-        raise GoalkeeperError("Missing or oversized agent summary")
+        raise ContextLoopError("Missing or oversized agent summary")
     try:
         value = json.loads(output.read_text())
     except ValueError as exc:
-        raise GoalkeeperError("Malformed agent JSON summary") from exc
+        raise ContextLoopError("Malformed agent JSON summary") from exc
     if not isinstance(value, dict) or set(value) != {"status", "summary"} or value["status"] not in SCHEMA["properties"]["status"]["enum"] or not isinstance(value["summary"], str):
-        raise GoalkeeperError("Agent summary does not match schema")
+        raise ContextLoopError("Agent summary does not match schema")
     tokens = 0
     for line in log.read_text(errors="replace").splitlines():
         try:

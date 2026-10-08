@@ -1,4 +1,4 @@
-# Validation — Goalkeeper v0.1
+# Validation — Context Loop v0.2
 
 Validation performed on macOS, Python 3.14.8, Codex CLI 0.157.0 using its existing
 ChatGPT login. No production project was modified or adopted into this harness.
@@ -14,7 +14,7 @@ ChatGPT login. No production project was modified or adopted into this harness.
 - `tools/verify_sandbox.py`: four real installed-sandbox checks passed, demonstrating
   workspace writes, denied contract/sibling writes, read-only check execution, and
   denied direct network calls against an otherwise reachable local HTTP fixture.
-- Real disposable Codex demo: two successful fresh agent turns built the slugify
+- Original real disposable Codex demo: two successful fresh agent turns built the slugify
   function and CLI. Every final behavioral check passed under the read-only sandbox.
   The initial permission-profile parse attempt failed safely and was corrected;
   the retained local history records three failed startup turns followed by two
@@ -22,7 +22,13 @@ ChatGPT login. No production project was modified or adopted into this harness.
 - The real successful run reported 174,949 input + output tokens (cached input
   included). This proves functionality, not a claim of minimal token cost.
 - Source installation into a private virtual environment successfully built and
-  installed `goalkeeper-codex==0.1.0`; no runtime dependencies are declared.
+  installed `context-loop==0.2.0`; no runtime dependencies are declared.
+- Rename validation: all 30 tests and four actual sandbox boundary checks passed
+  with the new Python imports, command, configuration names, and permission profiles.
+  The migrated original demo passed final checks through `context-loop.pyz`.
+- A new disposable project also completed one fresh real Codex turn through the
+  renamed standalone executable, with its independent output check passing.
+  That turn reported 65,590 input + output tokens; no credentials were copied.
 
 ## Release checks
 
@@ -37,7 +43,7 @@ ChatGPT login. No production project was modified or adopted into this harness.
 - Local repository initialized on `main`; implementation and release evidence
   committed. The local MVP was completed before remote publication. Following
   the owner's separate publishing instruction, the reviewed source is now public
-  at https://github.com/KeishonJohnson/goalkeeper with versioned release downloads.
+  at https://github.com/KeishonJohnson/context-loop with versioned release downloads.
   Distribution files also remain in dist/.
 - All test/demonstration processes finished; final demo state has no runner or
   active child PID. The source-suite process inspection required execution outside

@@ -1,4 +1,4 @@
-# Goalkeeper v0.1 completion contract
+# Context Loop v0.2 completion contract
 
 Build a shareable, Codex-first local execution partner. It must recover the goal,
 decisions and verification evidence between fresh Codex sessions, make incremental

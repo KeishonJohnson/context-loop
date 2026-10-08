@@ -10,11 +10,11 @@ import time
 import unittest
 from unittest.mock import patch
 
-from goalkeeper.cli import init_project, main
-from goalkeeper.config import load, fingerprint
-from goalkeeper.runner import Runner
-from goalkeeper.storage import GoalkeeperError, lock, read_json, write_json
-from goalkeeper.transport import execute, agent_command, profile, report
+from context_loop.cli import init_project, main
+from context_loop.config import load, fingerprint
+from context_loop.runner import Runner
+from context_loop.storage import ContextLoopError, lock, read_json, write_json
+from context_loop.transport import execute, agent_command, profile, report
 
 GOOD = '''import re, unicodedata, sys
 def slugify(text):
@@ -49,7 +49,7 @@ class Harness:
         log.write_text(json.dumps({"type": "turn.completed", "usage": {"input_tokens": 100, "output_tokens": 10}}) + "\n")
         return {"returncode": 0, "reason": None, "elapsed": .01}
 
-class GoalkeeperTests(unittest.TestCase):
+class ContextLoopTests(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory(dir=Path(tempfile.gettempdir()).resolve())
         self.root = init_project(Path(self.temp.name) / "demo", True)
@@ -59,7 +59,7 @@ class GoalkeeperTests(unittest.TestCase):
         state = Runner(self.root, "fixture-codex", harness, sandbox=False).run(check)
         return state, harness
     def limits(self, **kw):
-        path = self.root / "goalkeeper.json"
+        path = self.root / "context-loop.json"
         value = read_json(path)
         value["limits"].update(kw)
         write_json(path, value)
@@ -87,15 +87,15 @@ class GoalkeeperTests(unittest.TestCase):
         self.assertGreaterEqual(h.calls, 1)
         self.assertEqual(state["iterations"], 3)
     def test_stale_running_state_recovered(self):
-        path = self.root / ".goalkeeper/state.json"
+        path = self.root / ".context-loop/state.json"
         state = read_json(path)
         state.update(status="running", runner_pid=99999999, child_pid=99999999)
         write_json(path, state)
         self.assertEqual(self.run_with()[0]["status"], "complete")
     def test_living_prior_child_not_killed(self):
-        path = self.root / ".goalkeeper/state.json"
+        path = self.root / ".context-loop/state.json"
         state = read_json(path); state["child_pid"] = os.getpid(); write_json(path, state)
-        with self.assertRaisesRegex(GoalkeeperError, "still alive"): self.run_with()
+        with self.assertRaisesRegex(ContextLoopError, "still alive"): self.run_with()
     def test_malformed_output_bounded(self):
         self.assertEqual(self.run_with("malformed")[0]["status"], "blocked")
     def test_explicit_block_and_approval(self):
@@ -120,20 +120,20 @@ class GoalkeeperTests(unittest.TestCase):
         self.assertEqual(h.calls, 0)
     def test_lock_contention(self):
         with lock(self.root):
-            with self.assertRaisesRegex(GoalkeeperError, "already active"): self.run_with()
+            with self.assertRaisesRegex(ContextLoopError, "already active"): self.run_with()
     def test_missing_checks_refused(self):
-        path = self.root / "goalkeeper.json"; config = read_json(path)
+        path = self.root / "context-loop.json"; config = read_json(path)
         config["tasks"][0]["checks"] = []; write_json(path, config)
-        with self.assertRaisesRegex(GoalkeeperError, "independent checks"): load(self.root)
+        with self.assertRaisesRegex(ContextLoopError, "independent checks"): load(self.root)
     def test_existing_project_refused(self):
-        with self.assertRaisesRegex(GoalkeeperError, "existing path"): init_project(self.root)
+        with self.assertRaisesRegex(ContextLoopError, "existing path"): init_project(self.root)
     def test_workspace_traversal_refused(self):
-        path = self.root / "goalkeeper.json"; config = read_json(path)
+        path = self.root / "context-loop.json"; config = read_json(path)
         config["workspace"] = "../outside"; write_json(path, config)
-        with self.assertRaises(GoalkeeperError): load(self.root)
+        with self.assertRaises(ContextLoopError): load(self.root)
     def test_control_symlink_refused(self):
         path = self.root / "Goal.md"; path.unlink(); path.symlink_to(self.root / "Constraints.md")
-        with self.assertRaisesRegex(GoalkeeperError, "symlink"): load(self.root)
+        with self.assertRaisesRegex(ContextLoopError, "symlink"): load(self.root)
     def test_schema_and_unsafe_flags(self):
         command = agent_command("codex", self.root, Path("schema"), Path("output"))
         self.assertIn("--ephemeral", command)
@@ -150,7 +150,7 @@ class GoalkeeperTests(unittest.TestCase):
         self.assertEqual(state["status"], "error")
 
     def slow_check(self):
-        path = self.root / "goalkeeper.json"
+        path = self.root / "context-loop.json"
         config = read_json(path)
         config['tasks'] = [{'id': 'slow', 'description': 'Slow fixture', 'checks': [[sys.executable, '-c', 'import time; time.sleep(30)']]}]
         write_json(path, config)
@@ -176,7 +176,7 @@ class GoalkeeperTests(unittest.TestCase):
         thread = threading.Thread(target=lambda: result.append(self.run_with(check=True)[0]))
         thread.start()
         for _ in range(100):
-            if read_json(self.root / '.goalkeeper/state.json').get('child_pid'):
+            if read_json(self.root / '.context-loop/state.json').get('child_pid'):
                 break
             time.sleep(.02)
         self.assertEqual(main(['stop', str(self.root)]), 0)
@@ -186,19 +186,19 @@ class GoalkeeperTests(unittest.TestCase):
 
     def test_sigterm_stops_runner_and_child(self):
         self.slow_check()
-        code = 'from goalkeeper.runner import Runner; import sys; Runner(sys.argv[1], "fixture-codex", sandbox=False).run(check_only=True)'
+        code = 'from context_loop.runner import Runner; import sys; Runner(sys.argv[1], "fixture-codex", sandbox=False).run(check_only=True)'
         process = subprocess.Popen([sys.executable, '-c', code, str(self.root)])
         child = None
         try:
             for _ in range(100):
-                child = read_json(self.root / '.goalkeeper/state.json').get('child_pid')
+                child = read_json(self.root / '.context-loop/state.json').get('child_pid')
                 if child:
                     break
                 time.sleep(.02)
             self.assertIsNotNone(child)
             process.send_signal(signal.SIGTERM)
             self.assertEqual(process.wait(timeout=5), 0)
-            self.assertEqual(read_json(self.root / '.goalkeeper/state.json')['status'], 'stopped')
+            self.assertEqual(read_json(self.root / '.context-loop/state.json')['status'], 'stopped')
             with self.assertRaises(ProcessLookupError): os.kill(child, 0)
         finally:
             if process.poll() is None:
@@ -230,7 +230,7 @@ class SupervisionTests(unittest.TestCase):
     def test_report_rejects_nonobject(self):
         output = self.root / "out"; output.write_text("[]")
         log = self.root / "log"; log.write_text("")
-        with self.assertRaises(GoalkeeperError): report(output, log)
+        with self.assertRaises(ContextLoopError): report(output, log)
 
     def test_background_descendant_cleaned_after_parent_exit(self):
         code = "import subprocess,sys; from pathlib import Path; p=subprocess.Popen([sys.executable,'-c','import time; time.sleep(30)']); Path('descendant').write_text(str(p.pid))"

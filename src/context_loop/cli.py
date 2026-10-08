@@ -1,11 +1,11 @@
-"""Goalkeeper command line."""
+"""Context Loop command line."""
 import argparse
 import json
 import shutil
 import subprocess
 import sys
 from pathlib import Path
-from .storage import GoalkeeperError, atomic_text, write_json, initial_state, save_state, read_json, runtime
+from .storage import ContextLoopError, atomic_text, write_json, initial_state, save_state, read_json, runtime
 from .templates import starter
 from .runner import Runner
 
@@ -13,14 +13,14 @@ from .runner import Runner
 def init_project(path, demo=False):
     root = Path(path).absolute()
     if root.exists():
-        raise GoalkeeperError("Refusing existing path; choose a new project folder")
+        raise ContextLoopError("Refusing existing path; choose a new project folder")
     if root.parent.resolve() != root.parent:
-        raise GoalkeeperError("Parent must not contain symlinks")
+        raise ContextLoopError("Parent must not contain symlinks")
     config, files = starter(demo)
     root.mkdir(parents=True)
     for relative, content in files.items():
         atomic_text(root / relative, content)
-    write_json(root / "goalkeeper.json", config)
+    write_json(root / "context-loop.json", config)
     save_state(root, initial_state(config), config)
     return root
 
@@ -50,20 +50,20 @@ def main(argv=None):
             return result.returncode
         root = Path(args.project).absolute()
         if args.command == "stop":
-            if not (root / "goalkeeper.json").is_file():
-                raise GoalkeeperError("Not a managed project")
+            if not (root / "context-loop.json").is_file():
+                raise ContextLoopError("Not a managed project")
             atomic_text(runtime(root) / "stop", "stop requested\n")
             print("Stop requested; the runner will terminate its active child")
             return 0
         if args.command == "status":
-            state = read_json(root / ".goalkeeper" / "state.json")
+            state = read_json(root / ".context-loop" / "state.json")
         else:
             print(f"Running {args.command}; live evidence: {root / 'Progress.md'}", flush=True)
             state = Runner(root).run(check_only=args.command == "check")
         print(json.dumps({k: state[k] for k in ("status", "reason", "iterations", "reported_tokens")}, indent=2))
         return 0 if state["status"] in ("ready", "complete") else 1
-    except (GoalkeeperError, OSError, subprocess.TimeoutExpired) as exc:
-        print(f"Goalkeeper: {exc}", file=sys.stderr)
+    except (ContextLoopError, OSError, subprocess.TimeoutExpired) as exc:
+        print(f"Context Loop: {exc}", file=sys.stderr)
         return 2
 
 if __name__ == "__main__":

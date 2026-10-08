@@ -6,7 +6,7 @@ import signal
 import time
 import uuid
 from .config import load, fingerprint, argv
-from .storage import GoalkeeperError, runtime, lock, read_json, initial_state, save_state, event, write_json, atomic_text
+from .storage import ContextLoopError, runtime, lock, read_json, initial_state, save_state, event, write_json, atomic_text
 from .transport import SCHEMA, agent_command, check_command, execute, report
 
 class Runner:
@@ -14,7 +14,7 @@ class Runner:
         self.root, self.config = load(project)
         self.codex = codex or shutil.which("codex")
         if not self.codex:
-            raise GoalkeeperError("Install Codex CLI and run codex login first")
+            raise ContextLoopError("Install Codex CLI and run codex login first")
         self.executor, self.sandbox = executor, sandbox
         self.rt = runtime(self.root)
         self.stopping = False
@@ -31,16 +31,16 @@ class Runner:
 
     def command(self, command, timeout, prompt=None):
         if (self.root / "workspace" / ".codex").exists():
-            raise GoalkeeperError("Workspace .codex configuration is not allowed; owner review required")
+            raise ContextLoopError("Workspace .codex configuration is not allowed; owner review required")
         if self.changed():
-            raise GoalkeeperError("Owner contract changed during run; restart after review")
+            raise ContextLoopError("Owner contract changed during run; restart after review")
         self.seq += 1
         log = self.run_dir / f"{self.seq:04d}.log"
         result = self.executor(command, self.root / "workspace", log, min(timeout, max(.01, self.deadline - time.monotonic())), self.config["limits"]["max_log_bytes"], self.should_stop, self.child, prompt)
         if self.changed():
-            raise GoalkeeperError("Owner contract changed during run; acceptance rejected")
+            raise ContextLoopError("Owner contract changed during run; acceptance rejected")
         if result["reason"]:
-            raise GoalkeeperError("Process stopped: " + result["reason"])
+            raise ContextLoopError("Process stopped: " + result["reason"])
         return result, log
 
     def checks(self, task):
@@ -74,7 +74,7 @@ class Runner:
                 except ProcessLookupError:
                     pass
                 else:
-                    raise GoalkeeperError("Prior child PID is still alive; inspect it before restarting. No process was killed.")
+                    raise ContextLoopError("Prior child PID is still alive; inspect it before restarting. No process was killed.")
             for task in self.config["tasks"]:
                 self.state["tasks"].setdefault(task["id"], {"status": "pending", "checks": []})
             self.contract = fingerprint(self.root)
@@ -120,8 +120,8 @@ class Runner:
                         summary, tokens = report(output, log)
                         self.state["reported_tokens"] += tokens
                         if outcome["returncode"]:
-                            raise GoalkeeperError("Codex exited unsuccessfully")
-                    except GoalkeeperError as exc:
+                            raise ContextLoopError("Codex exited unsuccessfully")
+                    except ContextLoopError as exc:
                         failures += 1
                         event(self.state, str(exc))
                     else:
@@ -136,7 +136,7 @@ class Runner:
                     if failures >= limits["max_consecutive_failures"]:
                         self.state.update(status="blocked", reason="Consecutive unsuccessful iterations reached configured limit")
                         break
-            except (GoalkeeperError, OSError) as exc:
+            except (ContextLoopError, OSError) as exc:
                 self.state.update(status="stopped" if self.should_stop() else "error", reason=str(exc))
             finally:
                 for sig, handler in old_handlers.items():

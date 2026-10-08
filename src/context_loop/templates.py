@@ -67,9 +67,9 @@ def starter(demo: bool) -> tuple[dict, dict[str, str]]:
         "Goal.md": "# Goal\n\nDescribe the intended outcome and observable definition of done.\n",
         "Constraints.md": "# Constraints\n\n- Work only inside workspace/.\n- No credentials, external messages, deployments, or financial actions.\n- Do not change the goal, task contract, or acceptance checks.\n- If required access or a decision is missing, report blocked.\n",
         "Decisions.md": "# Decisions\n\nRecord owner decisions and their reasons here before a run.\n",
-        "Index.md": "# Project index\n\n- [[Goal]]: intended outcome.\n- [[Constraints]]: boundaries.\n- [[Decisions]]: owner decisions and reasons.\n- [[Tasks]]: runner-generated acceptance status.\n- [[Progress]]: runner-generated history, checks, and next action.\n\nCode lives in workspace/. The runner owns .goalkeeper/.\n",
-        ".gitignore": ".goalkeeper/\n__pycache__/\n*.pyc\n.DS_Store\n",
-        "workspace/AGENTS.md": "# Workspace execution\n\nRead the goal, constraints, and decisions supplied in each Goalkeeper prompt.\nImplement one assigned task per cycle. Inspect existing code before editing.\nWrite only inside this workspace. Do not modify ../goalkeeper.json, owner notes,\nacceptance checks, or runner state. Do not publish, install packages, send\nmessages, or invoke other agents. Return a truthful structured summary; the\nrunner determines completion independently. Record discoveries in NOTES.md.\n",
+        "Index.md": "# Project index\n\n- [[Goal]]: intended outcome.\n- [[Constraints]]: boundaries.\n- [[Decisions]]: owner decisions and reasons.\n- [[Tasks]]: runner-generated acceptance status.\n- [[Progress]]: runner-generated history, checks, and next action.\n\nCode lives in workspace/. The runner owns .context-loop/.\n",
+        ".gitignore": ".context-loop/\n__pycache__/\n*.pyc\n.DS_Store\n",
+        "workspace/AGENTS.md": "# Workspace execution\n\nRead the goal, constraints, and decisions supplied in each Context Loop prompt.\nImplement one assigned task per cycle. Inspect existing code before editing.\nWrite only inside this workspace. Do not modify ../context-loop.json, owner notes,\nacceptance checks, or runner state. Do not publish, install packages, send\nmessages, or invoke other agents. Return a truthful structured summary; the\nrunner determines completion independently. Record discoveries in NOTES.md.\n",
     }
     if demo:
         config["tasks"] = [

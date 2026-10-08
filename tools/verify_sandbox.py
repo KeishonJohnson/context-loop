@@ -10,7 +10,7 @@ import threading
 import urllib.request
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'src'))
-from goalkeeper.transport import profile, check_command
+from context_loop.transport import profile, check_command
 
 codex = shutil.which('codex')
 assert codex, 'Codex CLI required'
@@ -19,7 +19,7 @@ with tempfile.TemporaryDirectory(dir=Path(tempfile.gettempdir()).resolve()) as d
     (root / 'workspace').mkdir()
     (root / 'Goal.md').write_text('owner contract')
     def run(code, writable=False):
-        command = [codex, 'sandbox', '-P', 'goalkeeper', '-C', str(root / 'workspace'), *profile(root, 'goalkeeper', writable), '--', sys.executable, '-B', '-c', code]
+        command = [codex, 'sandbox', '-P', 'context-loop', '-C', str(root / 'workspace'), *profile(root, 'context-loop', writable), '--', sys.executable, '-B', '-c', code]
         result = subprocess.run(command, capture_output=True, text=True, timeout=15)
         return result
     result = run("from pathlib import Path; Path('allowed.txt').write_text('allowed')", True)
